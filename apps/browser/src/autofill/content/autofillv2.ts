@@ -848,8 +848,27 @@ function fill(document: Document, fillScript: AutofillScript) {
 
   // Detect if within an iframe, and the iframe is sandboxed
   function isSandboxed() {
-    // self.origin is 'null' if inside a frame with sandboxed csp or iframe tag
-    return self.origin == null || self.origin === "null";
+    let isSandboxed = false;
+    isSandboxed = self.origin == null || self.origin === "null";
+    console.log("isSandboxed1:", isSandboxed);
+    if (!isSandboxed) {
+      // self.origin is 'null' if inside a frame with sandboxed csp or iframe tag
+      try {
+        const isFramed = !!window.frameElement;
+        console.log("isFramed:", isFramed);
+        isSandboxed = isFramed && window.frameElement.hasAttribute("sandbox");
+        console.log("isSandboxed2try:", isSandboxed);
+      } catch {
+        console.log("location.hostname", location.hostname);
+        console.log("document.domain", document.domain);
+        if (document.domain === "") {
+          isSandboxed = true;
+        }
+        console.log("isSandboxed2catch:", isSandboxed);
+      }
+    }
+    console.log("isSandboxed3:", isSandboxed);
+    return isSandboxed;
   }
 
   function doFill(fillScript: AutofillScript) {
